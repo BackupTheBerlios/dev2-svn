@@ -27,10 +27,9 @@ import connection
 
 
 class Event:
-    """Stocke les infos sur une commmande de manière structurée et accessible.
-    """
+    """Store info on an event."""
     def __init__(self, cmd, args=[]):
-        self.cmd = cmd
+        self.cmd = cmd      # numeric value of the command
         self.args = args
 
 
@@ -44,7 +43,8 @@ class EventHandlerManager:
         # valeur la fonction qui leur est liée.
         self.commands = {}
         for cmd in connection.commands:
-            self.commands[cmd] = None
+            numval = connection.commands[cmd]
+            self.commands[numval] = None
         # Handler pour toutes les commandes.
         self.global_handler = None
 
@@ -68,24 +68,23 @@ class EventHandlerManager:
         commande spécifiée.
 
         Arguments:
-            cmd -- nom de la commande
-            callback -- méthode ou fonction
+            cmd -- numeric value of the command
+            callback
         """
-        cmd = cmd.lower()
-        if not cmd in self.commands.keys():
+        if not cmd in self.commands:
             return
 
         self.commands[cmd] = callback
 
 
     def handle(self, event):
-        """Appel la méthode liée à la commande reçue.
+        """Call the handler bound to the received command.
 
         Arguments:
-            event -- un object Event contenant les informations de la commande.
+            event -- an Event object, containing info on the event
         """
         if self.global_handler is not None:
             self.global_handler(event)
 
-        if self.commands[event.cmd()] is not None:
-            self.commands[event.cmd()](event)
+        if self.commands[event.cmd] is not None:
+            self.commands[event.cmd](event)

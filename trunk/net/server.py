@@ -79,8 +79,9 @@ class Server(TCPServer):
 
 
 if __name__ == "__main__":
+    addr = ("127.0.0.1", 12345)
     try:
-        server = Server()
+        server = Server(None, addr)
         server.serve_forever()
-    except KeyboardInterrrupt:
+    except KeyboardInterrupt:
         sys.exit(0)

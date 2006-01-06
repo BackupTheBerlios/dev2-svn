@@ -27,18 +27,15 @@ import socket
 #import logging
 
 
-
-# Pair programming commands codes.
-# The codes start with 1.
-p2p_cmd = {
-    "hello": 100,
-    "syncchar": 101,
-    "sendfile": 102,
-}
+commands = {
+# Pair programming commands codes (1xx).
+    "p2p_init": 100,
+    "p2p_syncchar": 101,
+    "p2p_sendfile": 102,
 
 # Chat protocol commands codes.
-chat_cmd = {
     # TODO define a simple chat protocol
+    #"chat_": xxx,
 }
 
 
@@ -120,14 +117,14 @@ class PairProgConnection(Connection):
 
 
     def hello(self, name):
-        """EXAMPLE: La commande hello permet de donner son nom à l'autre
+        """EXAMPLE: La commande init permet de donner son nom à l'autre
         utilisateur.
         """
-        cmd = p2p_cmd["hello"]
+        cmd = commands["p2p_init"]
         self.send([cmd, name])
 
 
     def sync_char(self, param=[]):
-        cmd_code = p2p_cmd["sync_char"]
+        cmd_code = command["p2p_sync_char"]
         cmd = [cmd_code] + list(param)
         self.send(cmd)
