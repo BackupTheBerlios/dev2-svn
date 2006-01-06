@@ -21,10 +21,23 @@
 """
 
 
-
 import socket
-# TODO logging module integration
-#import logging
+import logging
+
+
+
+log = logging.getLogger("net.connection")
+log.setLevel(logging.DEBUG)
+
+# create console handler and set level to debug
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+# create formatter
+formatter = logging.Formatter("[%(asctime)s] %(name)s - %(levelname)s:" +
+        " %(message)s")
+ch.setFormatter(formatter)
+log.addHandler(ch)
+
 
 
 commands = {
@@ -45,6 +58,8 @@ class Connection:
         Arguments:
             socket -- (optionel) un object socket valide
         """
+        log.info("Initializing connection")
+
         self.connected = False
         self.socket = socket
         if self.socket is not None:
@@ -64,10 +79,12 @@ class Connection:
         # Créer un nouveau socket TCP.
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
+            log.info("Connecting to %s on port %d ..." % addr)
             # Essayer de se connecter.
             self.socket.connect(addr)
             self.connected = True
         except socket.error:
+            log.exception("Connection failed")
             # Connexion échouée.
             self.connected = False
 
@@ -78,10 +95,13 @@ class Connection:
         """Fermer la connexion."""
         if self.is_connected():
             try:
+                log.info("Disconnecting...")
                 self.socket.close()
             except socket.error:
+                log.warning("Error while disconnecting")
                 self.socket = None
             except:
+                log.warning("Error while disconnecting")
                 self.socket = None
 
 
@@ -113,12 +133,14 @@ class PairProgConnection(Connection):
             return
 
         msg = " ".join(msg)
+        log.debug("TO SERVER: %s" % msg)
         return self.connection.send(msg)
 
 
-    def hello(self, name):
-        """EXAMPLE: La commande init permet de donner son nom à l'autre
-        utilisateur.
+    def init(self, name):
+        """Initialize the pair programming session.
+
+        Inform the server of our name.
         """
         cmd = commands["p2p_init"]
         self.send([cmd, name])
