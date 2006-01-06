@@ -35,7 +35,7 @@ class Server(TCPServer):
         Arguments:
             addr -- (host, port)
             connection_handler -- méthode appellée lorsqu'une connexion est
-                établie, avec comme paramétres le socket et l'adresse du
+                établie, avec comme paramètres le socket et l'adresse du
                 client.
         """
         TCPServer.__init__(self, addr, None)
@@ -50,7 +50,7 @@ class Server(TCPServer):
         (connection_handler).
 
         Démarre un nouveau thread pour ne pas bloquer (c'est peut-être pas
-        nécessaire, faudra voir avec les testes).
+        nécessaire, faudra voir avec les tests).
         """
         t = threading.Thread(group=None, target=self.connection_handler,
                 args=(request, addr))

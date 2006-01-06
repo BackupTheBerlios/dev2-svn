@@ -17,7 +17,7 @@
 # Place, Suite 330, Boston, MA 02111-1307 USA
 
 
-"""TODO:
+"""
 """
 
 
@@ -30,14 +30,8 @@ class Event:
     """Stocke les infos sur une commmande de manière structurée et accessible.
     """
     def __init__(self, cmd, args=[]):
-        self._cmd = cmd
-        self._args = args
-
-    def cmd(self):
-        return self._cmd
-
-    def args(self):
-        return self._args
+        self.cmd = cmd
+        self.args = args
 
 
 

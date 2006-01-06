@@ -17,27 +17,29 @@
 # Place, Suite 330, Boston, MA 02111-1307 USA
 
 
-"""TODO:
-
-    Définir les commandes du protocole de pair-programming. Probablement
-    ajouter le préfixe PAIR_ à chaque commande pour les distinguer de celles
-    du futur protocole de chat.
+"""
 """
 
 
 
 import socket
+# TODO logging module integration
+#import logging
 
 
 
-# Les commandes du protocole de pair programming.
-commands = [
-    "pair_hello",
-    "pair_syncchar",
-    "pair_sendfile",
-    #...
-]
+# Pair programming commands codes.
+# The codes start with 1.
+p2p_cmd = {
+    "hello": 100,
+    "syncchar": 101,
+    "sendfile": 102,
+}
 
+# Chat protocol commands codes.
+chat_cmd = {
+    # TODO define a simple chat protocol
+}
 
 
 class Connection:
@@ -49,6 +51,7 @@ class Connection:
         self.connected = False
         self.socket = socket
         if self.socket is not None:
+            # XXX An improvement would be to check the validity of the socket.
             self.connected = True
 
 
@@ -61,7 +64,7 @@ class Connection:
         # Fermer une éventuelle connexion établie auparavant.
         self.disconnect()
 
-        # Créer un nouveau socket.
+        # Créer un nouveau socket TCP.
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             # Essayer de se connecter.
@@ -120,9 +123,11 @@ class PairProgConnection(Connection):
         """EXAMPLE: La commande hello permet de donner son nom à l'autre
         utilisateur.
         """
-        self.send(["PAIR_HELLO", name])
+        cmd = p2p_cmd["hello"]
+        self.send([cmd, name])
 
 
     def sync_char(self, param=[]):
-        cmd = ["PAIR_SYNCCHAR"] + list(param)
+        cmd_code = p2p_cmd["sync_char"]
+        cmd = [cmd_code] + list(param)
         self.send(cmd)
