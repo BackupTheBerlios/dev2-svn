@@ -68,6 +68,7 @@ class Server(TCPServer):
         Démarre un nouveau thread pour ne pas bloquer (c'est peut-être pas
         nécessaire, faudra voir avec les tests).
         """
+        log.info("New client from %s on port %d" % addr)
         t = threading.Thread(group=None, target=self.connection_handler,
                 args=(request, addr))
         t.start()
