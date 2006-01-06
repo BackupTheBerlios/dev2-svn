@@ -19,6 +19,22 @@
 import sys
 import threading
 from SocketServer import TCPServer
+import logging
+
+
+
+log = logging.getLogger("net.server")
+log.setLevel(logging.DEBUG)
+
+# create console handler and set level to debug
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+# create formatter
+formatter = logging.Formatter("[%(asctime)s] %(name)s - %(levelname)s:" +
+        " %(message)s")
+ch.setFormatter(formatter)
+log.addHandler(ch)
+
 
 
 
@@ -61,9 +77,12 @@ class Server(TCPServer):
     def start(self):
         """Démarre le serveur dans un nouveau thread."""
         if not self.running:
+            log.info("Listening on %s on port %d" % self.server_address)
             t = threading.Thread(target=self.handle_request)
             t.start()
             self.threads.append(t)
+        else:
+            log.warning("Server already running")
 
 
     def close(self):
@@ -71,6 +90,10 @@ class Server(TCPServer):
 
         Arrêt de tous les threads.
         """
+        if not self.running:
+            log.warning("Server not running")
+            return
+        log.info("Shutting down server")
         self.running = False
         for t in self.threads:
             t.join()

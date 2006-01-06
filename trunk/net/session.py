@@ -57,7 +57,6 @@ formatter = logging.Formatter("[%(asctime)s] %(name)s - %(levelname)s:" +
         " %(message)s")
 ch.setFormatter(formatter)
 log.addHandler(ch)
-log.debug("test")
 
 
 class Session:
@@ -83,8 +82,6 @@ class Session:
         self.connection = None
         self.connection_handler = connection_handler
         self.event_handler = event.EventHandlerManager()
-
-        log.debug("Session initialized")
 
 
     def listen(self, addr):
