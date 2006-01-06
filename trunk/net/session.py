@@ -37,12 +37,27 @@
 import sys
 import socket
 import threading
+import logging
 
 # Modules internes à Dev².
 import server
 import connection
 import event
 
+
+
+log = logging.getLogger("net.session")
+log.setLevel(logging.DEBUG)
+
+# create console handler and set level to debug
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+# create formatter
+formatter = logging.Formatter("[%(asctime)s] %(name)s - %(levelname)s:" +
+        " %(message)s")
+ch.setFormatter(formatter)
+log.addHandler(ch)
+log.debug("test")
 
 
 class Session:
@@ -52,7 +67,7 @@ class Session:
     C'est une interface au-dessus de la couche réseau permettant la connexion
     à un utilisateur distant, l'attente de connexion, l'envoi de fichier, ...
     """
-    def __init__(self, name="", connection_handler=None, addr=None):
+    def __init__(self, name="", connection_handler=None):
         """
         Arguments:
             name -- nom de ce client
@@ -61,18 +76,19 @@ class Session:
                 graphique qui fournira sa méthode pour qu'elle soit avertie en
                 temps voulu.
         """
+        log.debug("Initializing session")
+
         self.name = name
         self.server = None
         self.connection = None
         self.connection_handler = connection_handler
         self.event_handler = event.EventHandlerManager()
 
-        # Start listening for pairs.
-        if addr is not None:
-            self.start(addr)
+        log.debug("Session initialized")
 
 
-    def start(self, addr):
+    def listen(self, addr):
+        """Start listening for pairs."""
         self.server = server.Server(self.handle_connection, addr)
         self.server.start()
 
@@ -147,7 +163,8 @@ if __name__ == "__main__":
     addr = ("127.0.0.1", 9393)
 
     # Création d'une session.
-    s1 = Session(connection_handler=conn_handler, addr=addr)
+    s1 = Session(connection_handler=conn_handler)
+    s1.listen(addr)
 
     # Création d'une autre session.
     s2 = Session()
