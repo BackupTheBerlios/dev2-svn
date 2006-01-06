@@ -52,7 +52,7 @@ class Session:
     C'est une interface au-dessus de la couche réseau permettant la connexion
     à un utilisateur distant, l'attente de connexion, l'envoi de fichier, ...
     """
-    def __init__(self, name="", connection_handler=None):
+    def __init__(self, name="", connection_handler=None, addr=None):
         """
         Arguments:
             name -- nom de ce client
@@ -66,6 +66,15 @@ class Session:
         self.connection = None
         self.connection_handler = connection_handler
         self.event_handler = event.EventHandlerManager()
+
+        # Start listening for pairs.
+        if addr is not None:
+            self.start(addr)
+
+
+    def start(self, addr):
+        self.server = server.Server(self.handle_connection, addr)
+        self.server.start()
 
 
     def connect(self, addr):
@@ -90,17 +99,6 @@ class Session:
 
     def add_handler(self, cmd, callback):
         self.event_handler.add_handler(cmd, callback)
-
-
-    def wait_for_connection(self, addr):
-        """Passe en mode attente de connexion d'un utilisateur distant.
-
-        Démarre un serveur dans un autre thread qui appellera la méthode
-        self.handle_connection quand un utilisateur se sera connecté.
-        """
-        if not hasattr("server", 'self'):
-            self.server = server.Server(self.handle_connection, addr)
-        self.server.start()
 
 
     def handle_connection(self, request, addr):
@@ -149,9 +147,7 @@ if __name__ == "__main__":
     addr = ("127.0.0.1", 9393)
 
     # Création d'une session.
-    s1 = Session(connection_handler=conn_handler)
-    # Prêt à recevoir la connexion d'un client.
-    s1.wait_for_connection(addr)
+    s1 = Session(connection_handler=conn_handler, addr=addr)
 
     # Création d'une autre session.
     s2 = Session()
