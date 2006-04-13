@@ -1,5 +1,5 @@
 # Dev2 - pair programming development tool
-# Copyright (C) 2005-2006 The Dev2 development team 
+# Copyright (C) 2005-2006 Alexandre Saint <stalst@gmail.com>
 
 # This file is part of Dev2.
 
@@ -16,3 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+__version__ = "0.0"
+__author__ = "Alexandre Saint"
+__author_email__ = "stalst@gmail.com"

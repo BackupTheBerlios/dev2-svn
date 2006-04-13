@@ -1,7 +1,7 @@
 # -*- coding: iso-8859-1 -*-
 
 # Dev2 - pair programming development tool
-# Copyright (C) 2005-2006 The Dev2 development team 
+# Copyright (C) 2005-2006 Alexandre Saint <stalst@gmail.com>
 
 # This file is part of Dev2.
 
