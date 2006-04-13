@@ -24,7 +24,7 @@
 
 
 
-import connection
+import dev2lib.net.connection as connection
 
 
 

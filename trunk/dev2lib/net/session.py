@@ -35,16 +35,12 @@
 """
 
 
-# Modules de la librairie standard.
 import sys
 import socket
 import threading
 import logging
 
-# Modules internes à Dev².
-import server
-import connection
-import event
+from dev2lib.net import server, connection, event
 
 
 

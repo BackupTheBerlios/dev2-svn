@@ -42,14 +42,9 @@ log.addHandler(ch)
 
 
 commands = {
-# Pair programming commands codes (1xx).
     "p2p_init": 100,
     "p2p_syncchar": 101,
     "p2p_sendfile": 102,
-
-# Chat protocol commands codes.
-    # TODO define a simple chat protocol
-    #"chat_": xxx,
 }
 
 
