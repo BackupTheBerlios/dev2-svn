@@ -30,9 +30,8 @@ import dev2lib.net.connection as connection
 
 class Event:
     """Store info on an event."""
-    def __init__(self, cmd, args=[]):
-        self.cmd = cmd      # numeric value of the command
-        self.args = args
+    def __init__(self, action):
+        self.action = action
 
 
 
