@@ -17,14 +17,29 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-"""The communication for the pair programming protocol is made by xml streams
-over TCP.
+"""Classes to create/decode streams.
 
-This classes allow for creating and decoding the streams.
+A stream is a text representation of an action. XML streams are used in the
+pair programming protocol.
 """
 
-from dev2lib.event import Event
-
 class XMLStream:
-    def __init__(self, ):
-        pass
+    """XML representation of an action that can be sent across the network."""
+    @classmethod
+    def make_stream(klass, action):
+        stream = u'<stream version="%d">%s</stream>'
+        tree = klass._build_tree(action)
+        stream = stream % (action.version, tree)
+
+        return stream
+
+    @classmethod
+    def _build_tree(klass, action):
+        tree = u""
+        for attr in action.__dict__:
+            dic = {'attr': attr, 'value': getattr(action, attr)}
+            if dic['value'] != "":
+                tree += u"<%(attr)s>%(value)s</%(attr)s>" % dic
+            else:
+                tree += u"<%(attr)s/>" % dic
+        return tree

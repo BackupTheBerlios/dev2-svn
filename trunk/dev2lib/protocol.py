@@ -17,26 +17,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-"""Classes to create actions for the pair programming protocol.
-
-Actions in the pair programming protocol permit users to interact.
+"""Inheritable classes for the different version of the pair programming
+protocol.
 """
 
-from dev2lib.protocol import Protocolv1
-
-class Action(Protocolv1):
-    """All actions must derive from this one class."""
-    def __init__(self, action):
-        self.action = action
-
-class StartAction(Action):
-    """Request the beginning of pair programming session."""
-    def __init__(self, name=""):
-        self.name = name
-        super(StartAction, self).__init__('start')
-
-class AcceptStartAction(Action):
-    """Accept the start request."""
-    def __init__(self, name=""):
-        self.name = name
-        super(AcceptStartAction, self).__init__('accept_start')
+class Protocolv1(object):
+    """Pair Programming version 1 flag marker."""
+    version = 1
