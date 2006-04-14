@@ -26,7 +26,7 @@ import logging
 
 
 
-log = logging.getLogger("net.server")
+log = logging.getLogger("dev2lib.net.server")
 log.setLevel(logging.DEBUG)
 
 # create console handler and set level to debug

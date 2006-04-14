@@ -44,7 +44,7 @@ from dev2lib.net import server, connection, event
 
 
 
-log = logging.getLogger("net.session")
+log = logging.getLogger("dev2lib.net.session")
 log.setLevel(logging.DEBUG)
 
 # create console handler and set level to debug
