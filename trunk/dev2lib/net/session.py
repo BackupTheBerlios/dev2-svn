@@ -133,8 +133,11 @@ class Session:
         if addr is not None:
             self.addr = addr
 
-        self.connect(self.addr)
+        if not self.connect(self.addr):
+            return False
 
+        action = ActionStart(self.name)
+        stream = self.connection.send_stream(action)
 
 
 if __name__ == "__main__":

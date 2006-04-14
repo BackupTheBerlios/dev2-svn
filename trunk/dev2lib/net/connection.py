@@ -23,8 +23,11 @@
 """
 
 import logging
+import select
 import socket
 
+from dev2lib.action import (StartAction, AcceptStartAction)
+from dev2lib.stream import TextStream
 
 
 log = logging.getLogger("dev2lib.net.connection")
@@ -39,13 +42,6 @@ formatter = logging.Formatter("[%(asctime)s] %(name)s - %(levelname)s:" +
 ch.setFormatter(formatter)
 log.addHandler(ch)
 
-
-
-commands = {
-    "p2p_init": 100,
-    "p2p_syncchar": 101,
-    "p2p_sendfile": 102,
-}
 
 
 class Connection:
@@ -110,31 +106,76 @@ class PairProgConnection(Connection):
     """Implémente les commandes de communication "pair-programming" avec le
     client.
     """
+    _select_timeout = 0.1
+
     def __init__(self, socket=None):
         Connection.__init__(self, socket=socket)
+        self.buffer = ""
+        self._actions = []
 
-    def send(self, msg=[]):
-        """Envoye une commande brute.
+    def send_stream(self, action):
+        """Send a text stream representing the action."""
+        stream = TextStream.make_stream(action)
+        log.debug(u"TO PEER: %s" % stream)
+        data = stream
+        size = 0
+        while size < len(data):
+            data = data[size:]
+            size = self.socket.send(data)
 
-        Arguments:
-            msg -- sequence contenant la commande suivie des paramètres
-        """
-        if not self.is_connected():
-            return
+    def get_actions(self):
+        actions = self._actions
+        self._actions = []
+        return actions
 
-        msg = " ".join(msg)
-        log.debug("TO SERVER: %s" % msg)
-        return self.connection.send(msg)
+    def has_streams(self):
+        """Check if new streams have been received on the socket."""
+        n_streams = self._extract_streams()
+        return n_streams != 0
 
-    def init(self, name):
-        """Initialize the pair programming session.
+    def _extract_streams(self):
+        """Extract new streams from the buffer if any."""
+        if not self._pull_data():
+            return 0
 
-        Inform the server of our name.
-        """
-        cmd = commands["p2p_init"]
-        self.send([cmd, name])
+        for line in self.buffer.splitlines():
+            if not line.endswith("\n"): # stream not received entirely yet
+                self.buffer = line
+            parts = line.split()
+            if parts[0].lower() == "p2p":
+                parts.pop(0)
+                version = parts.pop(1)
+                action = parts.pop(2)
+                args = parts
+                action = self._build_action(version, action, *args)
+                self._actions.append(action)
+            else:
+                log.debug("Unknown header %s" % parts[0])
 
-    def sync_char(self, param=[]):
-        cmd_code = command["p2p_sync_char"]
-        cmd = [cmd_code] + list(param)
-        self.send(cmd)
+    def _pull_data(self):
+        """Read the new data from the socket and store them in a buffer."""
+        readable, _, _ = select.select([self.socket], [], [],
+                self._select_timeout)
+
+        if len(readable) == 0:
+            return False
+
+        for sock in readable:
+            data += sock.read()
+            log.debug("RAW DATA FROM PEER: %s" % data)
+            self.buffer += data
+
+        return True
+
+    def _build_action(self, version, actiontype, *args):
+        """Construct an Action instance."""
+        if actiontype.lower() == "start":
+            name = ""
+            if len(args) > 0:
+                name = args[0]
+            action = StartAction(name)
+        elif actiontype.lower() == "accept_start":
+            name = ""
+            if len(args) > 0:
+                name = args[0]
+            action = AcceptStartAction(name)
