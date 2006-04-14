@@ -23,13 +23,16 @@ import unittest
 
 from dev2lib.net.session import Session
 
+def dummy_conn_handler(session):
+    print "new connection"
+
 class ServerTests(unittest.TestCase):
     def setUp(self):
         addr = ("localhost", 59334)
-        self.s1 = Session()
+        self.s1 = Session(connection_handler=dummy_conn_handler)
         self.s1.listen(addr)
         self.s2 = Session()
-        self.s2.connect(addr)
+        self.s2.start(addr)
 
     def tearDown(self):
         self.s2.close()

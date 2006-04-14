@@ -70,7 +70,7 @@ class Session:
     C'est une interface au-dessus de la couche réseau permettant la connexion
     à un utilisateur distant, l'attente de connexion, l'envoi de fichier, ...
     """
-    def __init__(self, name="", connection_handler=None):
+    def __init__(self, name="", addr=None, connection_handler=None):
         """
         Arguments:
             name -- nom de ce client
@@ -82,6 +82,7 @@ class Session:
         log.debug("Initializing session")
 
         self.name = name
+        self.addr = None
         self.server = None
         self.connection = None
         self.connection_handler = connection_handler
@@ -126,25 +127,14 @@ class Session:
 
 # METHODES DE SYNCHRONISATION DES FICHIERS
 
-    def send_file(self, file_):
-        """Envoyer un fichier pour travailler en paire dessus.
+    def start(self, addr=None):
+        """Start a new session."""
+        assert (addr is None) and (self.addr is not None)
+        if addr is not None:
+            self.addr = addr
 
-        Arguments:
-            file -- référence à un objet fichier (i.e. qui dispose de la
-                       méthode read()).
-        """
-        pass
+        self.connect(self.addr)
 
-    def sync_char(self, file_id, char, line, column):
-        """Synchronise la chaîne de caractère 'char'.
-
-        Arguments:
-            file_id -- identifiant spécifique au fichier en cours de traitement
-            char -- un caractère ou une chaîne de caractères
-            line -- ligne dans laquelle se trouve le caractère
-            column -- colonne dans laquelle se trouve le caractère
-        """
-        pass
 
 
 if __name__ == "__main__":
