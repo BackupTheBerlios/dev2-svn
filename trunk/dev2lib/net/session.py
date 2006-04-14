@@ -34,13 +34,13 @@
     ainsi de suite.
 """
 
-
-import sys
-import socket
-import threading
 import logging
+import socket
+import sys
+import threading
 
-from dev2lib.net import server, connection, event
+from dev2lib import event
+from dev2lib.net import server, connection
 
 
 

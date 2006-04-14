@@ -19,10 +19,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+import logging
 import sys
 import threading
 from SocketServer import TCPServer
-import logging
 
 
 
@@ -37,13 +37,6 @@ formatter = logging.Formatter("[%(asctime)s] %(name)s - %(levelname)s:" +
         " %(message)s")
 ch.setFormatter(formatter)
 log.addHandler(ch)
-
-
-
-
-# Définition d'exceptions spécifiques à ce module.
-class Error(Exception):
-    pass
 
 
 

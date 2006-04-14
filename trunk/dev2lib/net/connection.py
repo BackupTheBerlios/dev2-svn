@@ -22,8 +22,8 @@
 """
 """
 
-import socket
 import logging
+import socket
 
 
 
