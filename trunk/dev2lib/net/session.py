@@ -57,6 +57,12 @@ ch.setFormatter(formatter)
 log.addHandler(ch)
 
 
+STATUS = {
+    'connected': 1<<0,
+    'not connected': 1<<1,
+    'sending file': 1<<2,
+    }
+
 class Session:
     """Fournit les méthodes nécessaires pour interagir avec l'utilisateur
     distant.
@@ -80,13 +86,12 @@ class Session:
         self.connection = None
         self.connection_handler = connection_handler
         self.event_handler = event.EventHandlerManager()
-
+        self.status = STATUS['not connected']
 
     def listen(self, addr):
         """Start listening for pairs."""
         self.server = server.Server(self.handle_connection, addr)
         self.server.start()
-
 
     def connect(self, addr):
         """
@@ -95,7 +100,6 @@ class Session:
         """
         self.connection = connection.PairProgConnection()
         return self.connection.connect(addr)
-
 
     def close(self):
         """Terminer la session.
@@ -107,10 +111,8 @@ class Session:
         if self.server is not None:
             self.server.close()
 
-
     def add_handler(self, cmd, callback):
         self.event_handler.add_handler(cmd, callback)
-
 
     def handle_connection(self, request, addr):
         """Traite une nouvelle connexion."""
@@ -121,7 +123,6 @@ class Session:
         # Avertir de la nouvelle connexion, en passant une référence à cette
         # instance Session.
         self.connection_handler(self)
-
 
 # METHODES DE SYNCHRONISATION DES FICHIERS
 
@@ -134,7 +135,6 @@ class Session:
         """
         pass
 
-
     def sync_char(self, file_id, char, line, column):
         """Synchronise la chaîne de caractère 'char'.
 
@@ -145,7 +145,6 @@ class Session:
             column -- colonne dans laquelle se trouve le caractère
         """
         pass
-
 
 
 if __name__ == "__main__":

@@ -23,6 +23,8 @@ A stream is a text representation of an action. XML streams are used in the
 pair programming protocol.
 """
 
+from dev2lib.errors import CouldNotBuildStreamForAction
+
 class XMLStream:
     """XML representation of an action that can be sent across the network."""
     @classmethod
@@ -43,3 +45,29 @@ class XMLStream:
             else:
                 tree += u"<%(attr)s/>" % dic
         return tree
+
+
+class TextStream:
+    """Text representation of an action that can be sent across the nerwork."""
+    stream = u'P2P %(version)d %(action)s'
+    stream_start = stream + u' %(name)s'
+
+    @classmethod
+    def make_stream(klass, action):
+        kw = klass._get_kw(action)
+        if action.action in ("start", "accept_start"):
+            return klass.stream_start % kw
+        raise CouldNotBuildStreamForAction(action.action)
+
+    @classmethod
+    def _build_start(klass, action):
+        pass
+
+    @classmethod
+    def _get_kw(klass, action):
+        kw = {}
+        kw['version'] = action.version
+        for attr in action.__dict__:
+            kw[attr] = getattr(action, attr)
+
+        return kw
