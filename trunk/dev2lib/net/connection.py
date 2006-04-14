@@ -62,7 +62,6 @@ class Connection:
             # XXX An improvement would be to check the validity of the socket.
             self.connected = True
 
-
     def connect(self, addr):
         """Connexion à un hôte distant.
 
@@ -86,7 +85,6 @@ class Connection:
 
         return self.is_connected()
 
-
     def disconnect(self):
         """Fermer la connexion."""
         if self.is_connected():
@@ -100,15 +98,12 @@ class Connection:
                 log.warning("Error while disconnecting")
                 self.socket = None
 
-
     def is_connected(self):
         """Retourne True ou False en fonction de l'état de la connexion."""
         return self.connected
 
-
     def get_socket(self):
         return self.socket
-
 
 
 class PairProgConnection(Connection):
@@ -117,7 +112,6 @@ class PairProgConnection(Connection):
     """
     def __init__(self, socket=None):
         Connection.__init__(self, socket=socket)
-
 
     def send(self, msg=[]):
         """Envoye une commande brute.
@@ -132,7 +126,6 @@ class PairProgConnection(Connection):
         log.debug("TO SERVER: %s" % msg)
         return self.connection.send(msg)
 
-
     def init(self, name):
         """Initialize the pair programming session.
 
@@ -140,7 +133,6 @@ class PairProgConnection(Connection):
         """
         cmd = commands["p2p_init"]
         self.send([cmd, name])
-
 
     def sync_char(self, param=[]):
         cmd_code = command["p2p_sync_char"]

@@ -51,11 +51,10 @@ class Server(TCPServer):
                 client.
         """
         TCPServer.__init__(self, addr, None)
-        self.request_queue_size = 1 # 1 client par session max.
+        self.request_queue_size = 1 # max 1 client per session
         self.connection_handler = connection_handler
         self.running = False
         self.threads = []
-
 
     def finish_request(self, request, addr):
         """Prévient d'une nouvelle connexion en appelant la méthode fournie
@@ -69,7 +68,6 @@ class Server(TCPServer):
                 args=(request, addr))
         t.start()
         self.threads.append(t)
-
 
     def start(self):
         """Démarre le serveur dans un nouveau thread."""
