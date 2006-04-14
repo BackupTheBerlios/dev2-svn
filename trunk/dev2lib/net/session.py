@@ -138,29 +138,3 @@ class Session:
 
         action = ActionStart(self.name)
         stream = self.connection.send_stream(action)
-
-
-if __name__ == "__main__":
-    # Teste de la classe Session:
-
-    def conn_handler(session):
-        """Méthode qui sera appelée lors de la connexion d'un client."""
-        print "new connection"
-
-    addr = ("127.0.0.1", 9393)
-
-    # Création d'une session.
-    s1 = Session(connection_handler=conn_handler)
-    s1.listen(addr)
-
-    # Création d'une autre session.
-    s2 = Session()
-    # Connexion au premier client.
-    s2.connect(addr)
-
-    # Arrêt des sessions.
-    s2.close()
-    s1.close()
-
-    # Force la fin du programme.
-    sys.exit(0)
