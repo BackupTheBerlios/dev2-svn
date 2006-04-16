@@ -22,17 +22,7 @@
 """
 """
 
-
-
-import dev2lib.net.connection as connection
-
-
-
-class Event:
-    """Store info on an event."""
-    def __init__(self, action):
-        self.action = action
-
+from dev2lib.action import ACTIONS
 
 
 class EventHandlerManager:
@@ -42,10 +32,9 @@ class EventHandlerManager:
     def __init__(self):
         # Les commandes sont stockées dans un dictionnaire et elles ont pour
         # valeur la fonction qui leur est liée.
-        self.commands = {}
-        for cmd in connection.commands:
-            numval = connection.commands[cmd]
-            self.commands[numval] = None
+        self.map = {}
+        for numval in ACTIONS.values():
+            self.map[numval] = None
         # Handler pour toutes les commandes.
         self.global_handler = None
 
@@ -64,7 +53,7 @@ class EventHandlerManager:
         self.set_global_handler(None)
 
 
-    def add_handler(self, cmd, callback):
+    def add_handler(self, action, callback):
         """Définit une méthode qui sera appelée à chaque réception de la
         commande spécifiée.
 
@@ -72,20 +61,22 @@ class EventHandlerManager:
             cmd -- numeric value of the command
             callback
         """
-        if not cmd in self.commands:
-            return
+        if not action in self.map:
+            return False
 
-        self.commands[cmd] = callback
+        self.map[action] = callback
+
+        return True
 
 
-    def handle(self, event):
+    def handle(self, action):
         """Call the handler bound to the received command.
 
         Arguments:
             event -- an Event object, containing info on the event
         """
         if self.global_handler is not None:
-            self.global_handler(event)
+            self.global_handler(action)
 
-        if self.commands[event.cmd] is not None:
-            self.commands[event.cmd](event)
+        if self.map[action.action] is not None:
+            self.map[action.action](action)

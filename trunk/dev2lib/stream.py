@@ -23,6 +23,7 @@ A stream is a text representation of an action. XML streams are used in the
 pair programming protocol.
 """
 
+from dev2lib.action import ACTIONS
 from dev2lib.errors import CouldNotBuildStreamForAction
 
 class XMLStream:
@@ -55,7 +56,7 @@ class TextStream:
     @classmethod
     def make_stream(klass, action):
         kw = klass._get_kw(action)
-        if action.action in ("start", "accept_start"):
+        if action.action in (ACTIONS['start'], ACTIONS['accept_start']):
             return klass.stream_start % kw
         raise CouldNotBuildStreamForAction(action.action)
 

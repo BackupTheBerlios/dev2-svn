@@ -40,6 +40,7 @@ import sys
 import threading
 
 from dev2lib import event
+from dev2lib.action import (ACTIONS, StartAction, AcceptStartAction)
 from dev2lib.net import server, connection
 
 
@@ -58,9 +59,11 @@ log.addHandler(ch)
 
 
 STATUS = {
-    'connected': 1<<0,
-    'not connected': 1<<1,
-    'sending file': 1<<2,
+    'connected': 0,
+    'not connected': 1,
+    'connecting': 2,
+    'sending file': 100,
+    'recieving file': 101,
     }
 
 class Session:
@@ -87,20 +90,28 @@ class Session:
         self.connection = None
         self.connection_handler = connection_handler
         self.event_handler = event.EventHandlerManager()
-        self.status = STATUS['not connected']
+        self.set_status('not connected')
+
+    def set_status(self, status):
+        self.status = STATUS[status]
 
     def listen(self, addr):
         """Start listening for pairs."""
         self.server = server.Server(self.handle_connection, addr)
-        self.server.start()
+        self.server.handle_request_thread()
 
-    def connect(self, addr):
+    def _connect(self, addr):
         """
         Arguments:
             addr -- tuple (host, port)
         """
         self.connection = connection.PairProgConnection()
-        return self.connection.connect(addr)
+        if not self.connection.is_connected():
+            try:
+                self.connection.connect(addr)
+            except:
+                raise
+        return True
 
     def close(self):
         """Terminer la session.
@@ -109,32 +120,47 @@ class Session:
         """
         if self.connection is not None:
             self.connection.disconnect()
-        if self.server is not None:
+        if self.server is not None and self.server.running:
             self.server.close()
 
-    def add_handler(self, cmd, callback):
-        self.event_handler.add_handler(cmd, callback)
+    def add_handler(self, action, callback):
+        self.event_handler.add_handler(action, callback)
+
+    def set_global_handler(self, callback):
+        self.event_handler.set_global_handler(callback)
 
     def handle_connection(self, request, addr):
         """Traite une nouvelle connexion."""
-        # Récupérer les infos nécessaires sur la connexion, venant de 
-        # l'instance du serveur.
         self.connection = connection.PairProgConnection(socket=request)
-
-        # Avertir de la nouvelle connexion, en passant une référence à cette
-        # instance Session.
         self.connection_handler(self)
 
-# METHODES DE SYNCHRONISATION DES FICHIERS
+    def check(self):
+        """Check for new actions."""
+        if not self.connection.is_connected():
+            return
+
+        if self.connection.has_streams():
+            for action in self.connection.iter_actions():
+                self.event_handler.handle(action)
 
     def start(self, addr=None):
         """Start a new session."""
-        assert (addr is None) and (self.addr is not None)
         if addr is not None:
             self.addr = addr
-
-        if not self.connect(self.addr):
+        else:
             return False
 
-        action = ActionStart(self.name)
-        stream = self.connection.send_stream(action)
+        if not self._connect(self.addr):
+            return False
+
+        action = StartAction(self.name)
+        self.connection.send_stream(action)
+        self.set_status('connecting')
+
+        return True
+
+    def accept_start(self):
+        """Tell the peer we accept his request to start a session."""
+        action = AcceptStartAction(self.name)
+        self.connection.send_stream(action)
+        self.set_status('connected')

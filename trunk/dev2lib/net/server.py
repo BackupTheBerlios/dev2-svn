@@ -64,12 +64,17 @@ class Server(TCPServer):
         nécessaire, faudra voir avec les tests).
         """
         log.info("New client from %s on port %d" % addr)
+        log.debug(request.getpeername())
         t = threading.Thread(group=None, target=self.connection_handler,
                 args=(request, addr))
-        t.start()
-        self.threads.append(t)
+#        t.start()
+#        self.threads.append(t)
+        self.connection_handler(request, addr)
 
-    def start(self):
+    def close_request(self, request):
+        pass
+
+    def handle_request_thread(self):
         """Démarre le serveur dans un nouveau thread."""
         if not self.running:
             log.info("Listening on %s on port %d" % self.server_address)
@@ -86,7 +91,6 @@ class Server(TCPServer):
         Arrêt de tous les threads.
         """
         if not self.running:
-            log.warning("Server not running")
             return
         log.info("Shutting down server")
         self.running = False

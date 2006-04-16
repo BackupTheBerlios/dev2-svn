@@ -16,32 +16,3 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-"""Classes to create actions for the pair programming protocol.
-
-Actions in the pair programming protocol permit users to interact.
-"""
-
-from dev2lib.protocol import Protocolv1
-
-ACTIONS = {
-    'start': 1,
-    'accept_start': 2,
-}
-
-class Action(Protocolv1):
-    """All actions must derive from this one class."""
-    def __init__(self, action):
-        self.action = action
-
-class StartAction(Action):
-    """Request the beginning of pair programming session."""
-    def __init__(self, name=""):
-        self.name = name
-        super(StartAction, self).__init__(ACTIONS['start'])
-
-class AcceptStartAction(Action):
-    """Accept the start request."""
-    def __init__(self, name=""):
-        self.name = name
-        super(AcceptStartAction, self).__init__(ACTIONS['accept_start'])

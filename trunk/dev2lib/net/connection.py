@@ -26,7 +26,7 @@ import logging
 import select
 import socket
 
-from dev2lib.action import (StartAction, AcceptStartAction)
+from dev2lib.action import (ACTIONS, StartAction, AcceptStartAction)
 from dev2lib.stream import TextStream
 
 
@@ -44,7 +44,7 @@ log.addHandler(ch)
 
 
 
-class Connection:
+class Connection(object):
     def __init__(self, socket=None):
         """
         Arguments:
@@ -52,11 +52,12 @@ class Connection:
         """
         log.info("Initializing connection")
 
-        self.connected = False
         self.socket = socket
         if self.socket is not None:
             # XXX An improvement would be to check the validity of the socket.
-            self.connected = True
+            self.socket.setblocking(0)
+            log.debug("peername %s" % str(socket.getpeername()))
+
 
     def connect(self, addr):
         """Connexion à un hôte distant.
@@ -73,11 +74,10 @@ class Connection:
             log.info("Connecting to %s on port %d ..." % addr)
             # Essayer de se connecter.
             self.socket.connect(addr)
-            self.connected = True
+            self.socket.setblocking(0)
         except socket.error:
             log.exception("Connection failed")
-            # Connexion échouée.
-            self.connected = False
+            self.socket = None
 
         return self.is_connected()
 
@@ -87,6 +87,7 @@ class Connection:
             try:
                 log.info("Disconnecting...")
                 self.socket.close()
+                self.socket = None
             except socket.error:
                 log.warning("Error while disconnecting")
                 self.socket = None
@@ -96,7 +97,7 @@ class Connection:
 
     def is_connected(self):
         """Retourne True ou False en fonction de l'état de la connexion."""
-        return self.connected
+        return (self.socket is not None)
 
     def get_socket(self):
         return self.socket
@@ -115,18 +116,26 @@ class PairProgConnection(Connection):
 
     def send_stream(self, action):
         """Send a text stream representing the action."""
-        stream = TextStream.make_stream(action)
-        log.debug(u"TO PEER: %s" % stream)
-        data = stream
+        data = TextStream.make_stream(action)
+        log.debug(u"TO PEER: %s" % data)
         size = 0
         while size < len(data):
             data = data[size:]
             size = self.socket.send(data)
+        return size
 
     def get_actions(self):
         actions = self._actions
         self._actions = []
         return actions
+
+    def iter_actions(self):
+        """Iterate over the stored actions returning them one by one."""
+        for i in range(len(self._actions)):
+            yield self._actions[i]
+            # delete this action when we're sure it has been received
+            del self._actions[i]
+        raise StopIteration
 
     def has_streams(self):
         """Check if new streams have been received on the socket."""
@@ -143,9 +152,9 @@ class PairProgConnection(Connection):
                 self.buffer = line
             parts = line.split()
             if parts[0].lower() == "p2p":
-                parts.pop(0)
+                action = int(parts.pop(2))
                 version = parts.pop(1)
-                action = parts.pop(2)
+                parts.pop(0)
                 args = parts
                 action = self._build_action(version, action, *args)
                 self._actions.append(action)
@@ -154,28 +163,41 @@ class PairProgConnection(Connection):
 
     def _pull_data(self):
         """Read the new data from the socket and store them in a buffer."""
-        readable, _, _ = select.select([self.socket], [], [],
+        readable, w, e = select.select([self.socket], [], [],
                 self._select_timeout)
 
         if len(readable) == 0:
             return False
 
+        bufsize = 8192
         for sock in readable:
-            data += sock.read()
-            log.debug("RAW DATA FROM PEER: %s" % data)
-            self.buffer += data
+            data = sock.recv(bufsize)
+            while True:
+                self.buffer += data
+                log.debug("RAW DATA FROM PEER: %s" % data)
+                try:
+                    data += sock.recv(bufsize)
+                except socket.error:
+                    # no more data to receive
+                    break
 
         return True
 
     def _build_action(self, version, actiontype, *args):
-        """Construct an Action instance."""
-        if actiontype.lower() == "start":
+        """Construct an Action instance.
+
+        XXX: Move this to the action.py
+        """
+        if actiontype == ACTIONS["start"]:
             name = ""
             if len(args) > 0:
                 name = args[0]
-            action = StartAction(name)
-        elif actiontype.lower() == "accept_start":
+            act = StartAction(name)
+        elif actiontype == ACTIONS["accept_start"]:
             name = ""
             if len(args) > 0:
                 name = args[0]
-            action = AcceptStartAction(name)
+            act = AcceptStartAction(name)
+        else:
+            raise
+        return act
