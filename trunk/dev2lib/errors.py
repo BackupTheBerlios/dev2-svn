@@ -33,3 +33,9 @@ class CouldNotBuildStreamForAction(CouldNotBuildStream):
     """Action %(action)s not supported"""
     def __init__(self, action):
         self.action = action
+
+
+class UnknownAction(Error):
+    """Unknown action %(action)s"""
+    def __init__(self, action):
+        self.action

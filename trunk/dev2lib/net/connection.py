@@ -26,7 +26,7 @@ import logging
 import select
 import socket
 
-from dev2lib.action import (ACTIONS, StartAction, AcceptStartAction)
+from dev2lib.action import ActionFactory
 from dev2lib.stream import TextStream
 
 
@@ -156,7 +156,7 @@ class PairProgConnection(Connection):
                 version = parts.pop(1)
                 parts.pop(0)
                 args = parts
-                action = self._build_action(version, action, *args)
+                action = ActionFactory.build_action(version, action, *args)
                 self._actions.append(action)
             else:
                 log.debug("Unknown header %s" % parts[0])
@@ -182,22 +182,3 @@ class PairProgConnection(Connection):
                     break
 
         return True
-
-    def _build_action(self, version, actiontype, *args):
-        """Construct an Action instance.
-
-        XXX: Move this to the action.py
-        """
-        if actiontype == ACTIONS["start"]:
-            name = ""
-            if len(args) > 0:
-                name = args[0]
-            act = StartAction(name)
-        elif actiontype == ACTIONS["accept_start"]:
-            name = ""
-            if len(args) > 0:
-                name = args[0]
-            act = AcceptStartAction(name)
-        else:
-            raise
-        return act

@@ -22,12 +22,33 @@
 Actions in the pair programming protocol permit users to interact.
 """
 
+from dev2lib.errors import UnknownAction
 from dev2lib.protocol import Protocolv1
 
 ACTIONS = {
     'start': 1,
     'accept_start': 2,
 }
+
+class ActionFactory:
+    """Help build Action objects."""
+    @classmethod
+    def build_action(klass, version, actiontype, *args):
+        """Construct an Action instance."""
+        if actiontype == ACTIONS["start"]:
+            name = ""
+            if len(args) > 0:
+                name = args[0]
+            act = StartAction(name)
+        elif actiontype == ACTIONS["accept_start"]:
+            name = ""
+            if len(args) > 0:
+                name = args[0]
+            act = AcceptStartAction(name)
+        else:
+            raise UnknownAction(actiontype)
+
+        return act
 
 class Action(Protocolv1):
     """All actions must derive from this one class."""
