@@ -16,3 +16,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+import unittest
+
+import test_net_session
+import test_stream
+
+modules = [
+    test_net_session,
+    test_stream,
+    ]
+
+def main():
+    allsuites = []
+    for mod in modules:
+        allsuites.extend(mod.suites())
+    alltests = unittest.TestSuite(allsuites)
+    unittest.TextTestRunner(verbosity=2).run(alltests)
+
+if __name__ == "__main__":
+    main()

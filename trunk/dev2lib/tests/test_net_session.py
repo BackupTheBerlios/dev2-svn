@@ -67,6 +67,12 @@ class ServerTests(unittest.TestCase):
         self.s2.close()
         self.s1.close()
 
+def suites():
+    suites = [
+        unittest.makeSuite(ServerTests),
+        ]
+    return suites
+
 def main():
     unittest.main()
 

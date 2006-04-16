@@ -24,33 +24,39 @@ import unittest
 from dev2lib.action import StartAction, AcceptStartAction
 from dev2lib.stream import XMLStream, TextStream
 
-class XMLStreamTestsProtocolv1(unittest.TestCase):
+class XMLStreamProtocolv1Tests(unittest.TestCase):
     def testStartAction(self):
-        expected = u'<stream version="1"><action>start</action><name/>' \
-                    '</stream>'
+        expected = u'<stream version="1"><action>1</action><name/></stream>'
         action = StartAction()
         stream = XMLStream.make_stream(action)
         self.assertEqual(expected, stream)
 
     def testAcceptAction(self):
-        expected = u'<stream version="1"><action>accept_start</action>' \
-                    '<name>john</name></stream>'
+        expected = u'<stream version="1"><action>2</action>' \
+                '<name>john</name></stream>'
         action = AcceptStartAction(name="john")
         stream = XMLStream.make_stream(action)
         self.assertEqual(expected, stream)
 
-class TextStreamTestsProcolv1(unittest.TestCase):
+class TextStreamProtocolv1Tests(unittest.TestCase):
     def testStartAction(self):
-        expected = u'P2P 1 START '
+        expected = u'P2P 1 1 '
         action = StartAction()
         stream = TextStream.make_stream(action)
         self.assertEqual(expected.lower(), stream.lower())
 
     def testAcceptAction(self):
-        expected = u'P2P 1 ACCEPT_START john'
+        expected = u'P2P 1 2 john'
         action = AcceptStartAction(name="john")
         stream = TextStream.make_stream(action)
         self.assertEqual(expected.lower(), stream.lower())
+
+def suites():
+    suites = [
+        unittest.makeSuite(XMLStreamProtocolv1Tests),
+        unittest.makeSuite(TextStreamProtocolv1Tests),
+        ]
+    return suites
 
 def main():
     unittest.main()
